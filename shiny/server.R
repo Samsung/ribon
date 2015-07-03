@@ -1,41 +1,41 @@
-library(lpSolveAPI) # lpSolveAPI (http://lpsolve.sourceforge.net/5.5/R.htm)
-library(ggplot2) # ggplot
-library(reshape) # melt
+library(lpSolveAPI)  # lpSolveAPI (http://lpsolve.sourceforge.net/5.5/R.htm)
+library(ggplot2)  # ggplot
+library(reshape)  # melt
 
 source("global.R")
 
 shinyServer(function(input, output) {
-  ### Instance data read & refine
+  # Instance data read & refine
   insts.rct <- reactive({
     instsFile <- input$instsFile
     if (is.null(instsFile)) return(NULL)
     
     insts <- read.csv(instsFile$datapath, header = T, sep = ",")
-    insts[is.na(insts)] <- 0 # NA to 0
+    insts[is.na(insts)] <- 0  # NA to 0
     insts
   })
   
-  ### Upfront data read
+  # Upfront data read
   rawUps.rct <- reactive({
     upsFile <- input$upfrontsFile
     if (is.null(upsFile)) return(NULL)
     
     rawUps <- read.csv(upsFile$datapath, header = T, sep = ",")
-    rawUps[is.na(rawUps)] <- 0 # NA to 0
+    rawUps[is.na(rawUps)] <- 0  # NA to 0
     rawUps
   })
   
-  ### Simulation period setting
+  # Simulation period setting
   valueX.rct <- reactive({
     input$simPeriod
   })
   
-  ### Prices setting
+  # Prices setting
   prices.rct <- reactive({
     rawPrice[(rawPrice$Platform == input$platform) & (rawPrice$Region == input$region), ]
   })
   
-  ### Optimization
+  # Optimization
   optResult.rct <- reactive({
     insts <- insts.rct()
     rawUps <- rawUps.rct()
@@ -118,12 +118,12 @@ shinyServer(function(input, output) {
         for (st.i in 1:valueX) {
           idx1y = max(1, st.i - 11)
           idx3y = max(1, st.i - 35)
-          xt <- c(numeric(st.i - 1), 1, numeric(valueX - st.i)) # on-demand
-          xt <- c(xt, numeric(idx1y - 1), rep(1, st.i - idx1y + 1), numeric(valueX - st.i)) # 1year-no-upfront
-          xt <- c(xt, numeric(idx1y - 1), rep(1, st.i - idx1y + 1), numeric(valueX - st.i)) # 1year-partial-upfront
-          xt <- c(xt, numeric(idx3y - 1), rep(1, st.i - idx3y + 1), numeric(valueX - st.i)) # 3year-partial-upfront
-          xt <- c(xt, numeric(idx1y - 1), rep(1, st.i - idx1y + 1), numeric(valueX - st.i)) # 1year-all-upfront
-          xt <- c(xt, numeric(idx3y - 1), rep(1, st.i - idx3y + 1), numeric(valueX - st.i)) # 3year-all-upfront
+          xt <- c(numeric(st.i - 1), 1, numeric(valueX - st.i))  # on-demand
+          xt <- c(xt, numeric(idx1y - 1), rep(1, st.i - idx1y + 1), numeric(valueX - st.i))  # 1year-no-upfront
+          xt <- c(xt, numeric(idx1y - 1), rep(1, st.i - idx1y + 1), numeric(valueX - st.i))  # 1year-partial-upfront
+          xt <- c(xt, numeric(idx3y - 1), rep(1, st.i - idx3y + 1), numeric(valueX - st.i))  # 3year-partial-upfront
+          xt <- c(xt, numeric(idx1y - 1), rep(1, st.i - idx1y + 1), numeric(valueX - st.i))  # 1year-all-upfront
+          xt <- c(xt, numeric(idx3y - 1), rep(1, st.i - idx3y + 1), numeric(valueX - st.i))  # 3year-all-upfront
           rhs <- instsTotal[st.i, inst]
           if (!(is.null(rawUps)) & (st.i <= 11)) {
             for (pre.i in 1:(12 - st.i)) {
@@ -297,7 +297,7 @@ shinyServer(function(input, output) {
     optResult
   })
   
-  ### Output: Common notification
+  # Output: Common notification
   output$commonNoti <- renderPrint({
     insts <- insts.rct()
     prices <- prices.rct()
@@ -321,7 +321,7 @@ shinyServer(function(input, output) {
     }
   })
   
-  ### Output: Usage of instances
+  # Output: Usage of instances
   output$usageInsts <- renderDataTable({
     insts <- insts.rct()
     if (is.null(insts)) return(NULL)
@@ -332,7 +332,7 @@ shinyServer(function(input, output) {
     searching = F
   ))
   
-  ### Output: Previous upfronts
+  # Output: Previous upfronts
   output$preUpfronts <- renderDataTable({
     rawUps <- rawUps.rct()
     if (is.null(rawUps)) return(NULL)
@@ -343,7 +343,7 @@ shinyServer(function(input, output) {
     searching = F
   ))
   
-  ### Output: price data
+  # Output: price data
   output$priceData <- renderDataTable({
     prices <- prices.rct()
     if (is.null(prices)) return(NULL)
@@ -353,7 +353,7 @@ shinyServer(function(input, output) {
     pageLength = 10
   ))
   
-  ### Output: Cost Text
+  # Output: Cost Text
   output$costText <- renderPrint({
     insts <- insts.rct()
     optResult <- optResult.rct()
@@ -370,7 +370,7 @@ shinyServer(function(input, output) {
     cat("Cost Gain:", costGain.mean, "%", "\n")
   })
   
-  ### Output: Cost Month
+  # Output: Cost Month
   output$costTimePlot <- renderPlot({
     insts <- insts.rct()
     optResult <- optResult.rct()
@@ -397,7 +397,7 @@ shinyServer(function(input, output) {
       ggtitle("Monthly Cost")
   })
   
-  ### Output: Cost Type
+  # Output: Cost Type
   output$costTypePlot <- renderPlot({
     insts <- insts.rct()
     optResult <- optResult.rct()
@@ -420,7 +420,7 @@ shinyServer(function(input, output) {
       ggtitle("Total Cost for each Server Type")
   })
   
-  ### Output: Instance Text
+  # Output: Instance Text
   output$instText <- renderPrint({
     insts <- insts.rct()
     optResult <- optResult.rct()
@@ -458,7 +458,7 @@ shinyServer(function(input, output) {
     cat("Usage Rate of All-Upfront (3-Year) Instances:", usageAU3.mean, "%", "(Previous RIs: ",  usageAU3.min, "%)", "\n")
   })
   
-  ### Output: Instance Month
+  # Output: Instance Month
   output$instTimePlot <- renderPlot({
     insts <- insts.rct()
     optResult <- optResult.rct()
@@ -492,7 +492,7 @@ shinyServer(function(input, output) {
       ggtitle("Monthly Number of Instances")
   })
   
-  ### Output: Instance Type
+  # Output: Instance Type
   output$instTypePlot <- renderPlot({
     insts <- insts.rct()
     optResult <- optResult.rct()
@@ -524,7 +524,7 @@ shinyServer(function(input, output) {
       ggtitle("Number of Instances for each Server Type")
   })
   
-  ## Output: Download upfronts
+  # Output: Download upfronts
   output$dlUpfronts <- downloadHandler(
     filename = function() {
       paste("upfronts_", format(Sys.Date(), "%Y%m%d"), ".csv", sep = "")
