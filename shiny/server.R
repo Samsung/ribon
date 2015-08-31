@@ -50,7 +50,9 @@ shinyServer(function(input, output) {
     if (is.null(valueX)) return(NULL)
     if (is.null(prices)) return(NULL)
     
-    performOptimization(input, insts, rawUps, valueX, prices)
+    performOptimization(insts, rawUps, valueX, prices, 
+                        input$maxNU1, input$maxPU1, input$maxPU3,
+                        input$maxAU1, input$maxAU3)
   })
   
   # Output: Common notification

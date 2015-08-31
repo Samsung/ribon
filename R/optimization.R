@@ -36,11 +36,15 @@ getObjFunc <- function(inst, valueX, prices) {
 # Perform optimization and get ouputs
 #
 # Args:
-#   input: input of shiny server
 #   insts: Instance usage
 #   rawUps: Previous upfront instances
 #   valueX: Simulation period
 #   prices: EC2 price information
+#   maxNU1: maximum usage of percentage of no-upfront 1-year instances
+#   maxPU1: maximum usage of percentage of partial-upfront 1-year instances
+#   maxPU3: maximum usage of percentage of partial-upfront 3-year instances
+#   maxAU1: maximum usage of percentage of all-upfront 1-year instances
+#   maxAU3: maximum usage of percentage of all-upfront 3-year instances
 #
 # Returns
 #   optResult: List that contains all the results of optimization
@@ -232,11 +236,11 @@ performOptimization <- function(input, insts, rawUps, valueX, prices) {
                  numeric(1 * valueX))
       xtAU3 <- c(numeric(5 * valueX), 
                  pmin(36, valueX - seq(1:valueX) + 1))
-      rhsNU1 <- max(0, floor(sum(instsTotal[inst]) * input$maxNU1 * 0.01))
-      rhsPU1 <- max(0, floor(sum(instsTotal[inst]) * input$maxPU1 * 0.01))
-      rhsPU3 <- max(0, floor(sum(instsTotal[inst]) * input$maxPU3 * 0.01))
-      rhsAU1 <- max(0, floor(sum(instsTotal[inst]) * input$maxAU1 * 0.01))
-      rhsAU3 <- max(0, floor(sum(instsTotal[inst]) * input$maxAU3 * 0.01))
+      rhsNU1 <- max(0, floor(sum(instsTotal[inst]) * maxNU1 * 0.01))
+      rhsPU1 <- max(0, floor(sum(instsTotal[inst]) * maxPU1 * 0.01))
+      rhsPU3 <- max(0, floor(sum(instsTotal[inst]) * maxPU3 * 0.01))
+      rhsAU1 <- max(0, floor(sum(instsTotal[inst]) * maxAU1 * 0.01))
+      rhsAU3 <- max(0, floor(sum(instsTotal[inst]) * maxAU3 * 0.01))
       if (!is.null(rawUps)) {
         for (pre.i in 1:11) {
           preMonth <- 
