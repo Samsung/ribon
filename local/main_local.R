@@ -8,6 +8,7 @@ source("local/output_descript.R")
 
 # User input: file path of expected usage of instances
 instsFile <- "data/input-test.csv"
+instsFile <- "data/synthetic-control-downward.csv"
 # User input: file path of previous upfront usage of instances
 upsFile <- "data/input-upfront.csv"
 # User input: whether applying previous upfronts
@@ -17,7 +18,7 @@ platform <- "Linux"
 # Region of target ec2 instance
 region <- "US East (N. Virginia)"
 # User input: simulation period
-valueX <- 12
+valueX <- 60
 # User input: maximum usage of percentage of no-upfront 1-year instances
 maxNU1 <- 100
 # User input: maximum usage of percentage of partial-upfront 1-year instances
