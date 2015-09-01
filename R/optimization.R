@@ -7,11 +7,12 @@ library(lpSolveAPI)  # lpSolveAPI (http://lpsolve.sourceforge.net/5.5/R.htm)
 #   rawUps: Previous upfront instances
 #   valueX: Simulation period
 #   prices: EC2 price information
-#   maxNU1: maximum usage of percentage of no-upfront 1-year instances
-#   maxPU1: maximum usage of percentage of partial-upfront 1-year instances
-#   maxPU3: maximum usage of percentage of partial-upfront 3-year instances
-#   maxAU1: maximum usage of percentage of all-upfront 1-year instances
-#   maxAU3: maximum usage of percentage of all-upfront 3-year instances
+#   maxNU1: Maximum usage of percentage of no-upfront 1-year instances
+#   maxPU1: Maximum usage of percentage of partial-upfront 1-year instances
+#   maxPU3: Maximum usage of percentage of partial-upfront 3-year instances
+#   maxAU1: Maximum usage of percentage of all-upfront 1-year instances
+#   maxAU3: Maximum usage of percentage of all-upfront 3-year instances
+#   printProg: Whether printing progress or not
 #
 # Returns
 #   List that contains all the results of optimization
@@ -58,7 +59,8 @@ library(lpSolveAPI)  # lpSolveAPI (http://lpsolve.sourceforge.net/5.5/R.htm)
 #     cost.opt: 
 #       Cost of each pricing policies per month (with Optimization)
 performOptimization <- function(insts, rawUps, valueX, prices,
-                                maxNU1, maxPU1, maxPU3, maxAU1, maxAU3) {
+                                maxNU1, maxPU1, maxPU3, maxAU1, maxAU3,
+                                printProg) {
   # Variables setting
   thisMonth <- insts[1, "Month"]
   optResult <- initOptResult(insts, valueX)
@@ -72,13 +74,15 @@ performOptimization <- function(insts, rawUps, valueX, prices,
   }
   
   # Get upfronts
-  withProgress(message = "Optimizing", value = 0, {
-    for (inst in names(optResult[["instsTotal"]])[-1]) {
-      optResult <- getOptUps(optResult, inst, rawUps, valueX, prices,
-                             maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, thisMonth)
-      incProgress(1 / (ncol(optResult[["instsTotal"]]) - 1), detail = inst)
-    }
-  })
+  if (printProg) {
+    optResult <- getOptUpsWithProg(optResult, inst, rawUps, valueX, prices,
+                                   maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, 
+                                   thisMonth)
+  } else {
+    optResult <- getOptUpsWithoutProg(optResult, inst, rawUps, valueX, prices,
+                                      maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, 
+                                      thisMonth)
+  }
   
   # Get instance usage per month
   optResult <- getInstanceUsage(optResult, rawUps, valueX, thisMonth)
@@ -193,6 +197,65 @@ getObjFunc <- function(inst, valueX, prices) {
   )
 }
 
+# Get optimized upfront with progress
+#
+# Args:
+#   optResult: Optimal results
+#   inst: target instance
+#   rawUps: Previous upfront instances
+#   valueX: Simulation period
+#   prices: EC2 price information
+#   maxNU1: maximum usage of percentage of no-upfront 1-year instances
+#   maxPU1: maximum usage of percentage of partial-upfront 1-year instances
+#   maxPU3: maximum usage of percentage of partial-upfront 3-year instances
+#   maxAU1: maximum usage of percentage of all-upfront 1-year instances
+#   maxAU3: maximum usage of percentage of all-upfront 3-year instances
+#   thisMonth: start month from simulation period
+#
+# Returns:
+#   Optimal results
+getOptUpsWithProg <- function(optResult, inst, rawUps, valueX, prices,
+                              maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, 
+                              thisMonth) {
+  withProgress(message = "Optimizing", value = 0, {
+    for (inst in names(optResult[["instsTotal"]])[-1]) {
+      optResult <- getOptUps(optResult, inst, rawUps, valueX, prices,
+                             maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, thisMonth)
+      incProgress(1 / (ncol(optResult[["instsTotal"]]) - 1), detail = inst)
+    }
+  })
+  
+  optResult
+}
+
+# Get optimized upfront without progress
+#
+# Args:
+#   optResult: Optimal results
+#   inst: target instance
+#   rawUps: Previous upfront instances
+#   valueX: Simulation period
+#   prices: EC2 price information
+#   maxNU1: maximum usage of percentage of no-upfront 1-year instances
+#   maxPU1: maximum usage of percentage of partial-upfront 1-year instances
+#   maxPU3: maximum usage of percentage of partial-upfront 3-year instances
+#   maxAU1: maximum usage of percentage of all-upfront 1-year instances
+#   maxAU3: maximum usage of percentage of all-upfront 3-year instances
+#   thisMonth: start month from simulation period
+#
+# Returns:
+#   Optimal results
+getOptUpsWithoutProg <- function(optResult, inst, rawUps, valueX, prices,
+                                 maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, 
+                                 thisMonth) {
+  for (inst in names(optResult[["instsTotal"]])[-1]) {
+    optResult <- getOptUps(optResult, inst, rawUps, valueX, prices,
+                           maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, thisMonth)
+  }
+  
+  optResult
+}
+
 # Get optimized upfront instances
 #
 # Args:
@@ -211,7 +274,8 @@ getObjFunc <- function(inst, valueX, prices) {
 # Returns:
 #   Optimal results
 getOptUps <- function(optResult, inst, rawUps, valueX, prices,
-                      maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, thisMonth) {
+                      maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, 
+                      thisMonth) {
   lpResult <- make.lp(0, 6 * valueX)
   set.objfn(lpResult, getObjFunc(inst, valueX, prices))
   for (st.i in 1:valueX) {

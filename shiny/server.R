@@ -53,7 +53,7 @@ shinyServer(function(input, output) {
     
     performOptimization(insts, rawUps, valueX, prices, 
                         input$maxNU1, input$maxPU1, input$maxPU3,
-                        input$maxAU1, input$maxAU3)
+                        input$maxAU1, input$maxAU3, T)
   })
   
   # Output: Common notification
