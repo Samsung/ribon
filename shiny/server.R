@@ -33,7 +33,8 @@ shinyServer(function(input, output) {
   
   # Prices setting
   prices.rct <- reactive({
-    priceData <- rawPrice()
+    priceFile = "../data/ec2-price.csv"
+    priceData <- rawPrice(priceFile)
     priceData[
       (priceData$Platform == input$platform) & 
         (priceData$Region == input$region), 
