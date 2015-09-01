@@ -24,15 +24,20 @@ loadInsts <- function(instsFile) {
 #
 # Args:
 #   upsFile: file path of previous upfront usage of instances
+#   applyUps: whether applying previous upfronts
 #
 # Returns:
 #   previous upfront usage of instances
-loadUpfronts <- function(upsFile) {
-  rawUps <- read.csv(upsFile, header = T, sep = ",")
-  
-  rawUps[is.na(rawUps)] <- 0  # NA to 0
-  
-  rawUps
+loadUpfronts <- function(upsFile, applyUps) {
+  if (applyUps) {
+    NULL
+  } else {
+    rawUps <- read.csv(upsFile, header = T, sep = ",")
+    
+    rawUps[is.na(rawUps)] <- 0  # NA to 0
+    
+    rawUps  
+  }
 }
 
 # Load/refine/validate prices

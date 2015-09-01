@@ -10,6 +10,8 @@ source("local/output_descript.R")
 instsFile <- "data/input-test.csv"
 # User input: file path of previous upfront usage of instances
 upsFile <- "data/input-upfront.csv"
+# User input: whether applying previous upfronts
+applyUps <- TRUE
 # Platform of target ec2 instance
 platform <- "Linux"
 # Region of target ec2 instance
@@ -30,10 +32,9 @@ maxAU3 <- 100
 # Data load/refine/validate: expected usage of instances
 insts <- loadInsts(instsFile)
 # Data load/refine: previous upfront usage of instances
-rawUps <- loadUpfronts(upsFile)
+rawUps <- loadUpfronts(upsFile, applyUps)
 # Data load/refine/validate: prices
 prices <- loadPrices(insts, platform, region)
-
 # Optimization
 optResult <- performOptimization(insts, rawUps, valueX, prices, 
                                  maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, F)
