@@ -18,7 +18,7 @@ platform <- "Linux"
 # Region of target ec2 instance
 region <- "US East (N. Virginia)"
 # User input: simulation period
-valueX <- 60
+valueX <- 24
 # User input: maximum usage of percentage of no-upfront 1-year instances
 maxNU1 <- 100
 # User input: maximum usage of percentage of partial-upfront 1-year instances
@@ -37,8 +37,10 @@ rawUps <- loadUpfronts(upsFile, applyUps)
 # Data load/refine/validate: prices
 prices <- loadPrices(insts, platform, region)
 # Optimization
+ptm <- proc.time()
 optResult <- performOptimization(insts, rawUps, valueX, prices, 
                                  maxNU1, maxPU1, maxPU3, maxAU1, maxAU3, F)
+proc.time() - ptm
 
 # Output: expected usage of instances
 insts
