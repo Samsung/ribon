@@ -91,7 +91,7 @@ performOptimization <- function(insts, rawUps, valueX, prices,
   optResult <- getCost(optResult, prices)
   
   # Get updated upfronts
-  updateUpfronts(optResult, rawUps)
+  optResult <- updateUpfronts(optResult, rawUps)
   
   optResult
 }
