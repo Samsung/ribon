@@ -30,13 +30,13 @@ loadInsts <- function(instsFile) {
 #   previous upfront usage of instances
 loadUpfronts <- function(upsFile, applyUps) {
   if (applyUps) {
-    NULL
-  } else {
     rawUps <- read.csv(upsFile, header = T, sep = ",")
     
     rawUps[is.na(rawUps)] <- 0  # NA to 0
     
     rawUps  
+  } else {
+    NULL
   }
 }
 
